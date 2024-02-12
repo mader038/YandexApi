@@ -4,6 +4,7 @@ import sys
 
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtCore import Qt
 
 api_key = '40d1649f-0493-4b70-98ba-98533de7710b'
 
@@ -29,12 +30,29 @@ def positions(apikey, search):
 class Map(QWidget):
     def __init__(self):
         super().__init__()
+        self.search = input()
+        self.counter = 1
         self.getImage()
         self.initUI()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_PageUp:
+            if self.counter > 5:
+                self.counter -= 5
+
+        elif event.key() == Qt.Key_PageDown:
+            if self.counter < 51:
+                self.counter += 5
+        os.remove(self.map_file)
+        self.getImage()
+        self.image.setPixmap(QPixmap(self.map_file))  # Обновление картинки на виджете
+
+
+
     def getImage(self):
-        s, l = positions(api_key, input())
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={s},{l}&spn=1.010,1.010&l=map"
+        n = self.counter
+        s, l = positions(api_key, self.search)
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={s},{l}&spn={n},{n}&l=map"
         response = requests.get(map_request)
 
         if not response:
