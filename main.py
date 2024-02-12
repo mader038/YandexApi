@@ -31,6 +31,8 @@ class Map(QWidget):
     def __init__(self):
         super().__init__()
         self.search = input()
+        self.long = 0
+        self.width = 0
         self.counter = 1
         self.getImage()
         self.initUI()
@@ -43,16 +45,22 @@ class Map(QWidget):
         elif event.key() == Qt.Key_PageDown:
             if self.counter < 51:
                 self.counter += 5
+        if event.key() == Qt.Key_Left:
+            self.long -= 0.1
+        elif event.key() == Qt.Key_Right:
+            self.long += 0.1
+        elif event.key() == Qt.Key_Up:
+            self.width += 0.1
+        elif event.key() == Qt.Key_Down:
+            self.width -= 0.1
         os.remove(self.map_file)
         self.getImage()
         self.image.setPixmap(QPixmap(self.map_file))  # Обновление картинки на виджете
 
-
-
     def getImage(self):
-        n = self.counter
+        counter = self.counter
         s, l = positions(api_key, self.search)
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={s},{l}&spn={n},{n}&l=map"
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={float(s) + self.long},{float(l) + self.width}&spn={counter},{counter}&l=map"
         response = requests.get(map_request)
 
         if not response:
